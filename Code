@@ -50,10 +50,10 @@ cse <- function(reg) {
 
 load("RDM.RData")
 
-RDM2020 <- fread('usa_00015.csv', header=T, sep=',')
+#RDM2020 <- fread('usa_00015.csv', header=T, sep=',')
 #save(RDM, file = "RDM2020.RData")
 
-#load("RDM2020.RData")
+load("RDM2020.RData")
 
 #summary statistics tables
 stargazer(RDM, type="text", median=TRUE,
