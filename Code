@@ -1,0 +1,120 @@
+```{r }
+#==============================================================================
+#  Residential Demographic Multipliers Replication and Extension
+#==============================================================================
+# Keeghan Ahearn
+# First Version 4/29/2022.
+
+#==============================================================================
+#   1. Settings, packages, and options
+#==============================================================================
+
+# Clear the working space
+rm(list = ls())
+
+# Set working directory 
+
+setwd("C:/Users/kahea/Desktop/Desktop Files/Homework/2022/Fall/usa_00014.csv/")
+
+
+library(stargazer)
+library(sandwich)
+library(car)
+library(plyr)
+library(data.table)
+library(bit64)
+library(doBy)
+library(AER)
+library(lmtest)
+library(ggplot2)
+library(gdata)
+library(plm)
+library(ivpack)
+library(tidyverse)
+
+# turn off scientific notation except for big numbers
+options(scipen = 9)
+
+# function to calculate robust standard errors for regression 
+cse <- function(reg) {
+  rob = sqrt(diag(vcovHC(reg, type = "HC1")))
+  return(rob)
+}
+
+#==============================================================================
+#   2. Data section
+#==============================================================================
+
+#RDM <- fread('usa_00014.csv', header=T, sep=',')
+#save(RDM, file = "RDM.RData")
+
+load("RDM.RData")
+
+RDM2020 <- fread('usa_00015.csv', header=T, sep=',')
+#save(RDM, file = "RDM2020.RData")
+
+#load("RDM2020.RData")
+
+#summary statistics tables
+stargazer(RDM, type="text", median=TRUE,
+          digits=2, title="2015 Summary Statistics")
+
+stargazer(RDM2020, type="text", median=TRUE,
+          digits=2, title="2020 Summary Statistics")
+
+#==============================================================================
+#   3. Analysis: Generating the Multipliers
+#==============================================================================
+
+
+##Housing Configurations and Multipliers for 2015 Dataset
+
+#single-family detached 2 BR
+single2 <- subset(RDM, UNITSSTR==3 & BEDROOMS==3)
+
+single2$UNIQUE=(single2$PERNUM)*10000000+single2$SERIAL
+
+count_unique <- rapply(single2, function(x) length(unique(x)))
+
+#total_persons = UNIQUE/SERIAL
+
+single2children <- subset(single2, AGE>4 & AGE<19)
+
+count_unique2 <- rapply(single2children, function(x) length(unique(x)))
+
+#school-age children = UNIQUE from count_unique2/count_unique SERIAL
+
+#multi-family 2 BR
+multi2 <- subset(RDM, UNITSSTR==5 & BEDROOMS==3)
+
+multi2$UNIQUE=(multi2$PERNUM)*10000000+multi2$SERIAL
+
+count_unique3 <- rapply(multi2, function(x) length(unique(x)))
+
+multi2children <- subset(multi2, AGE>4 & AGE<19)
+
+count_unique4 <- rapply(multi2children, function(x) length(unique(x)))
+
+##Housing Configurations and Multipliers for 2020 Dataset
+
+#single-family detached 2 BR
+single2_2020 <- subset(RDM2020, UNITSSTR==3 & BEDROOMS==3)
+
+single2_2020$UNIQUE=(single2_2020$PERNUM)*10000000+single2_2020$SERIAL
+
+count_unique2020 <- rapply(single2_2020, function(x) length(unique(x)))
+
+single2children_2020 <- subset(single2_2020, AGE>4 & AGE<19)
+
+count_unique2020_2 <- rapply(single2children_2020, function(x) length(unique(x)))
+
+#multi-family 2 BR
+multi2_2020 <- subset(RDM2020, UNITSSTR==5 & BEDROOMS==3)
+
+multi2_2020$UNIQUE=(multi2_2020$PERNUM)*10000000+multi2_2020$SERIAL
+
+count_unique2020_3 <- rapply(multi2_2020, function(x) length(unique(x)))
+
+multi2children_2020 <- subset(multi2_2020, AGE>4 & AGE<19)
+
+count_unique2020_4 <- rapply(multi2children_2020, function(x) length(unique(x)))
